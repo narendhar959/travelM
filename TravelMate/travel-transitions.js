@@ -29,7 +29,7 @@
     cab:       { page: "cabs.html",       label: "Cabs",      caption: "On the way",        dur: 1200, stage: "tt-stage-ride" },
     cruise:    { page: "cruise.html",     label: "Cruise",    caption: "Setting sail",      dur: 1250, stage: "tt-stage-cruise" },
     bus:       { page: "buses.html",      label: "Buses",     caption: "Rolling out",       dur: 1100, stage: "tt-stage-ride" },
-    tour:      { page: "tours.html",      label: "Tours",     caption: "Discovering",       dur: 1200, stage: "tt-stage-tour" },
+    tour:      { page: "tours.html",      label: "Trip planner", caption: "Building your itinerary", dur: 2200, stage: "tt-stage-tour" },
     hotel:     { page: "hotels.html",     label: "Hotels",    caption: "Checking in",       dur: 1200, stage: "tt-stage-hotel" },
     insurance: { page: "insurance.html",  label: "Insurance", caption: "Covered",           dur: 1150, stage: "tt-stage-insurance" },
     generic:   { page: "main.html",       label: "TravelMate",caption: "TravelMate",        dur: 700,  stage: "tt-stage-generic" }
@@ -195,6 +195,16 @@
     '</div><div class="tt-sun"></div>';
   }
 
+  function itineraryArt() {
+    return '<div class="tt-itinerary-route" aria-hidden="true"><i></i><i></i><i></i></div>' +
+      '<section class="tt-itinerary-card" aria-hidden="true">' +
+        '<div class="tt-itinerary-head"><span class="tt-itinerary-pin"></span><span>Your tour plan</span></div>' +
+        '<div class="tt-itinerary-row"><b>Day 1</b><em></em><span>Arrival & local sights</span></div>' +
+        '<div class="tt-itinerary-row"><b>Day 2</b><em></em><span>Experiences & discovery</span></div>' +
+        '<div class="tt-itinerary-row"><b>Day 3</b><em></em><span>Memories to take home</span></div>' +
+      '</section>';
+  }
+
   /* ----------------------------------------------------------
      Scene builders — one per motion identity
      ---------------------------------------------------------- */
@@ -218,7 +228,7 @@
     bus: function () {
       return '<div class="tt-fx"></div><div class="tt-actor">' + ART.bus + '</div>';
     },
-    tour: function () { return landmarksArt(); },
+    tour: function () { return itineraryArt(); },
     hotel: function () {
       return '<div class="tt-fx"></div><div class="tt-actor">' + hotelArt() + '</div>';
     },
@@ -314,6 +324,7 @@
 
     var overlay = playScene(type, BUILDERS[type] ? BUILDERS[type]() : BUILDERS.generic());
     var revealDelay = Math.max(220, cfg.dur - 340);
+    var fallbackDelay = Math.max(NAV_FALLBACK, cfg.dur + 250);
     var navigated = false;
 
     function navigate() {
@@ -329,13 +340,14 @@
     window.setTimeout(function () {
       teardownOverlay(overlay);
       navigate();
-    }, NAV_FALLBACK);
+    }, fallbackDelay);
   }
 
   function goToSafely(type) {
     if (running) return;            // block accidental double navigation
     running = true;
-    window.setTimeout(function () { running = false; }, NAV_FALLBACK + 600);
+    var cfg = SERVICE[type] || SERVICE.generic;
+    window.setTimeout(function () { running = false; }, Math.max(NAV_FALLBACK, cfg.dur + 250) + 600);
     goTo(type);
   }
 

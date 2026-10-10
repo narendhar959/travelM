@@ -298,7 +298,7 @@
       color: #e8f6f6;
       text-align: center;
       padding: 36px 20px 26px;
-      margin-top: 56px;
+      margin-top: 0;
       border-top: 3px solid var(--tm-teal-400);
     }
 
@@ -306,29 +306,6 @@
     .footer a:hover { text-decoration: underline; }
     .footer-bottom { margin-top: 16px; font-size: 14px; color: #a9cccc; }
     .footer h3 { margin-top: 0; color: #fff; }
-
-    /* ---------- Floating AI button ---------- */
-    .ai-button {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 74px;
-      height: 74px;
-      border-radius: 50%;
-      background: #fff;
-      border: 3px solid var(--tm-teal-600);
-      display: grid;
-      place-items: center;
-      font-size: 30px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-      cursor: pointer;
-      z-index: 1100;
-      overflow: hidden;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .ai-button:hover { transform: scale(1.08) translateY(-2px); box-shadow: 0 18px 36px rgba(0, 0, 0, 0.32); }
-    .ai-button img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
     @media (max-width: 900px) {
       .services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -354,7 +331,7 @@
 <body>
   <!-- Navbar -->
   <div class="navbar">
-    <h1><span class="brand-mark">🧭</span>TravelMate</h1>
+    <h1>TravelMate</h1>
     <div class="nav-links">
       <a href="upcoming.html">Upcoming</a>
       <a href="plan.html">Plan</a>
@@ -433,11 +410,6 @@
         <p>&copy; 2025 TravelMate Pvt. Ltd. | All Rights Reserved</p>
       </div>
     </footer>
-  </div>
-
-  <!-- AI Floating Button -->
-  <div class="ai-button" onclick="window.location.href='ai.html'" role="button" tabindex="0" aria-label="TravelMate AI assistant">
-    <img src="project images/project images/ai.jpg" alt="TravelMate AI assistant" onerror="tmIconFallback(this, '🤖')">
   </div>
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="travel-transitions.js"></script>

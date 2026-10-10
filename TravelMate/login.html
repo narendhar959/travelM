@@ -10,7 +10,7 @@
     body {
         margin: 0;
         min-height: 100vh;
-        background: linear-gradient(135deg, #006a6a 0%, #00a0a0 100%);
+        background: url('project images/project images/login.jpg.jpg') center / cover fixed no-repeat;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -117,6 +117,10 @@
     .forgot-password a { color: #5b6b6b; font-size: 14px; font-weight: 500; }
     .back-home { text-align: center; margin-top: 20px; }
     .back-home a { color: #008080; font-size: 14px; }
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 16px; color: #728181; font-size: 12px; }
+    .auth-divider::before, .auth-divider::after { content: ''; height: 1px; flex: 1; background: #dce9e9; }
+    .google-signin { min-height: 44px; display: flex; justify-content: center; }
+    .google-status { min-height: 18px; margin: 9px 0 0; color: #5b6b6b; font-size: 12px; text-align: center; }
 </style>
 </head>
 <body>
@@ -147,6 +151,10 @@
         <button type="submit" class="login-btn" id="loginBtn">Login</button>
     </form>
 
+    <div class="auth-divider" aria-hidden="true">OR</div>
+    <div class="google-signin" id="googleSignIn" aria-label="Continue with Google"></div>
+    <div id="googleStatus" class="google-status" role="status" aria-live="polite"></div>
+
     <div class="forgot-password">
         <a href="#" onclick="forgotPassword(); return false;">Forgot Password?</a>
     </div>
@@ -159,6 +167,8 @@
 </div>
 
 <script src="popup-manager.js"></script>
+<script src="https://accounts.google.com/gsi/client" defer></script>
+<script src="auth-google.js"></script>
 <script>
     // Sample user database (in a real app this would be server-side)
     const users = JSON.parse(localStorage.getItem('travelmate_users') || '[]');
