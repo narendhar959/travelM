@@ -123,7 +123,8 @@
       }
 
       .form-group input,
-      .form-group select {
+      .form-group select,
+      .form-group textarea {
         width: 100%;
         padding: 15px;
         border: 2px solid #e9ecef;
@@ -133,8 +134,11 @@
         box-sizing: border-box;
       }
 
+      .form-group textarea { min-height: 145px; resize: vertical; }
+
       .form-group input:focus,
-      .form-group select:focus {
+      .form-group select:focus,
+      .form-group textarea:focus {
         outline: none;
         border-color: #008080;
         box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
@@ -174,6 +178,16 @@
         font-size: 48px;
         margin-bottom: 15px;
         display: block;
+      }
+
+      /* Keep the five-star hotel rating within its accommodation card. */
+      #step3 .option-icon {
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: clamp(24px, 4vw, 34px);
+        line-height: 1.2;
+        letter-spacing: 1px;
       }
 
       .option-title {
@@ -551,7 +565,18 @@
           </div>
 
           <div class="step" id="step6">
-            <div class="step-indicator">Step 6 of 6</div>
+            <div class="step-indicator">Step 6 of 7</div>
+            <div class="step-title">📝 Any special requirements?</div>
+            <div class="step-subtitle">Tell us about specific preferences or needs</div>
+
+            <div class="form-group">
+              <label for="specialRequirements">Additional Specifications (Optional)</label>
+              <textarea id="specialRequirements" placeholder="E.g., I prefer vegetarian food, need wheelchair-accessible places, want adventure activities, am interested in historical sites, or am travelling with kids."></textarea>
+            </div>
+          </div>
+
+          <div class="step" id="step7">
+            <div class="step-indicator">Step 7 of 7</div>
             <div class="step-title">🎉 Your Perfect Trip Plan</div>
             <div class="step-subtitle">
               Here's your personalized itinerary and budget
@@ -604,7 +629,7 @@
 
     <script>
       let currentStep = 1;
-      const totalSteps = 6;
+      const totalSteps = 7;
       const API_BASE_URL = "http://localhost:5000";
       let tourBookingCreated = false;
 
@@ -616,6 +641,7 @@
         meals: [],
         duration: 0,
         travelers: 1,
+        specialRequirements: "",
       };
 
       function updateProgress() {
@@ -700,6 +726,9 @@
             formData.travelers = parseInt(
               document.getElementById("travelers").value
             );
+            break;
+          case 6:
+            formData.specialRequirements = document.getElementById("specialRequirements").value.trim();
             break;
         }
         return true;
@@ -937,8 +966,11 @@
         const accommodation = `${formData.accommodation.replace("star", " star")} hotel`;
         const meals = formData.meals.length ? formData.meals.join(", ") : "meals at your preference";
         const transport = formData.transport.charAt(0).toUpperCase() + formData.transport.slice(1);
+        const requirements = formData.specialRequirements
+          ? `<div class="day-item" style="border-left-color: #00a0a0;"><h4 style="color: #008080; margin: 0 0 8px;">Your preferences</h4><p style="margin: 0; line-height: 1.6;">${escapeHtml(formData.specialRequirements)}</p><p style="margin: 10px 0 0; color: #537070;">Your itinerary has been adjusted to keep these preferences in mind.</p></div>`
+          : "";
 
-        itineraryContainer.innerHTML = Array.from({ length: formData.duration }, (_, index) => {
+        itineraryContainer.innerHTML = requirements + Array.from({ length: formData.duration }, (_, index) => {
           const day = index + 1;
           const activities = plan[index % plan.length];
           const date = new Date(startDate);
@@ -1269,7 +1301,8 @@
           travelers: formData.travelers,
           transport: formData.transport,
           accommodation: formData.accommodation,
-          meals: formData.meals
+          meals: formData.meals,
+          specialRequirements: formData.specialRequirements
         };
 
         const bookings = JSON.parse(localStorage.getItem("travelmate_bookings") || "[]");
