@@ -182,12 +182,13 @@
 
       /* Keep the five-star hotel rating within its accommodation card. */
       #step3 .option-icon {
-        max-width: 100%;
-        overflow: hidden;
         white-space: nowrap;
-        font-size: clamp(24px, 4vw, 34px);
+        font-family: Arial, sans-serif;
+        font-size: clamp(22px, 2.4vw, 30px);
         line-height: 1.2;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
+        color: #f4b400;
+        text-shadow: 0 1px 1px rgba(133, 94, 0, 0.28);
       }
 
       .option-title {
@@ -483,17 +484,17 @@
 
             <div class="option-grid">
               <div class="option-card" onclick="selectAccommodation('5star')">
-                <span class="option-icon">⭐⭐⭐⭐⭐</span>
+                <span class="option-icon" aria-label="5 stars">★★★★★</span>
                 <div class="option-title">5 Star Hotel</div>
                 <div class="option-subtitle">Luxury Experience</div>
               </div>
               <div class="option-card" onclick="selectAccommodation('4star')">
-                <span class="option-icon">⭐⭐⭐⭐</span>
+                <span class="option-icon" aria-label="4 stars">★★★★</span>
                 <div class="option-title">4 Star Hotel</div>
                 <div class="option-subtitle">Premium Comfort</div>
               </div>
               <div class="option-card" onclick="selectAccommodation('3star')">
-                <span class="option-icon">⭐⭐⭐</span>
+                <span class="option-icon" aria-label="3 stars">★★★</span>
                 <div class="option-title">3 Star Hotel</div>
                 <div class="option-subtitle">Good Value</div>
               </div>
