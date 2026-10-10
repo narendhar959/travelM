@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelMate - Upcoming Trips</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #008080;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .trips-section {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .trip-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 25px;
+      border: 2px solid #f0f0f0;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+      background: #fafafa;
+    }
+
+    .trip-item:hover {
+      border-color: #008080;
+      box-shadow: 0 5px 15px rgba(0,128,128,0.1);
+      transform: translateY(-2px);
+    }
+
+    .trip-info {
+      flex: 1;
+    }
+
+    .trip-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #008080;
+      margin-bottom: 8px;
+    }
+
+    .trip-details {
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .trip-date {
+      color: #333;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .trip-status {
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .status-confirmed {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+
+    .status-pending {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .trip-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .view-btn {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .view-btn:hover {
+      background: #138496;
+    }
+
+    .cancel-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .cancel-btn:hover {
+      background: #c82333;
+    }
+
+    .no-trips {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .no-trips h3 {
+      color: #008080;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    .no-trips p {
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .book-now-btn {
+      background: #008080;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .book-now-btn:hover {
+      background: #006666;
+    }
+
+    .trip-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #008080, #00a0a0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      margin-right: 20px;
+    }
+
+    .trip-main {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .countdown {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin-top: 10px;
+      color: #856404;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .trip-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .trip-main {
+        width: 100%;
+      }
+      
+      .trip-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="main.html" class="back-btn">← Back</a>
+    <h1>✈️ Upcoming Trips</h1>
+    <p>Your planned adventures await</p>
+  </div>
+
+  <div class="container">
+    <div class="trips-section">
+      <h3 style="color: #008080; margin-bottom: 25px;">Your Upcoming Bookings</h3>
+      <div id="trips-container">
+        <!-- Trips will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadUpcomingTrips() {
+      const user = JSON.parse(localStorage.getItem('travelmate_current_user') || 'null');
+      const container = document.getElementById('trips-container');
+      
+      if (!user) {
+        container.innerHTML = `
+          <div class="no-trips">
+            <h3>Please Login First</h3>
+            <p>You need to login to view your upcoming trips.</p>
+            <a href="login.html" class="book-now-btn">Login Now</a>
+          </div>
+        `;
+        return;
+      }
+
+      const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+      const userBookings = bookings.filter(booking => booking.userId === user.id);
+      
+      if (userBookings.length === 0) {
+        container.innerHTML = `
+          <div class="no-trips">
+            <h3>No Upcoming Trips</h3>
+            <p>You haven't booked any trips yet. Start planning your next adventure!</p>
+            <a href="main.html" class="book-now-btn">Book Your Trip</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      userBookings.forEach(booking => {
+        const tripItem = document.createElement('div');
+        tripItem.className = 'trip-item';
+        
+        // Get trip icon based on type
+        const icons = {
+          flight: '✈️',
+          train: '🚆',
+          bus: '🚌',
+          cab: '🚗',
+          tour: '🏖️',
+          cruise: '🚢',
+          hotel: '🏨'
+        };
+        
+        const bookingDate = new Date(booking.date);
+        const now = new Date();
+        const timeDiff = bookingDate.getTime() - now.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        let countdown = '';
+        if (daysDiff > 0) {
+          countdown = `<div class="countdown">⏰ ${daysDiff} day${daysDiff > 1 ? 's' : ''} to go!</div>`;
+        } else if (daysDiff === 0) {
+          countdown = `<div class="countdown">🎉 Today is the day!</div>`;
+        }
+        
+        tripItem.innerHTML = `
+          <div class="trip-main">
+            <div class="trip-icon">${icons[booking.type] || '🎯'}</div>
+            <div class="trip-info">
+              <div class="trip-title">${booking.title}</div>
+              <div class="trip-details">
+                <strong>Type:</strong> ${booking.type.charAt(0).toUpperCase() + booking.type.slice(1)} | 
+                <strong>Price:</strong> ${booking.price} | 
+                <strong>Booking ID:</strong> ${booking.id}
+              </div>
+              <div class="trip-date">
+                <strong>Booked on:</strong> ${bookingDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </div>
+              ${countdown}
+            </div>
+          </div>
+          <div class="trip-actions">
+            <div class="trip-status status-${booking.status}">${booking.status}</div>
+            <button class="action-btn view-btn" onclick="viewTripDetails('${booking.id}')">
+              View Details
+            </button>
+            <button class="action-btn cancel-btn" onclick="cancelTrip('${booking.id}')">
+              Cancel
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(tripItem);
+      });
+    }
+
+    function viewTripDetails(bookingId) {
+      const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+      const booking = bookings.find(b => b.id === bookingId);
+      
+      if (booking) {
+        const insurances = JSON.parse(localStorage.getItem('travelmate_insurances') || '[]');
+        const insurance = insurances.find(i => i.bookingId === bookingId);
+        
+        let insuranceInfo = insurance ? 
+          `Insurance: ${insurance.planName} (${insurance.price})` : 
+          'Insurance: Not added';
+        
+        tmNotify('Trip Details',
+          `${booking.title}\n` +
+          `Type: ${booking.type.charAt(0).toUpperCase() + booking.type.slice(1)}\n` +
+          `Price: ${booking.price}\n` +
+          `Booking ID: ${booking.id}\n` +
+          `Status: ${booking.status}\n` +
+          `Booked on: ${new Date(booking.date).toLocaleDateString()}\n` +
+          `${insuranceInfo}`,
+          'info', 8000);
+      }
+    }
+
+    function cancelTrip(bookingId) {
+      if (confirm('Are you sure you want to cancel this trip? This action cannot be undone.')) {
+        const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+        const updatedBookings = bookings.filter(booking => booking.id !== bookingId);
+        
+        localStorage.setItem('travelmate_bookings', JSON.stringify(updatedBookings));
+        
+        // Also remove associated insurance if any
+        const insurances = JSON.parse(localStorage.getItem('travelmate_insurances') || '[]');
+        const updatedInsurances = insurances.filter(insurance => insurance.bookingId !== bookingId);
+        localStorage.setItem('travelmate_insurances', JSON.stringify(updatedInsurances));
+        
+        tmNotify('Trip Cancelled', 'Trip cancelled successfully. Refund will be processed within 3-5 business days.', 'success');
+        loadUpcomingTrips(); // Refresh the list
+      }
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUpcomingTrips();
+    });
+  </script>
+  <script src="travel-transitions.js"></script>
+  <script src="travel-message.js"></script>
+</body>
+</html>

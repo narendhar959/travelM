@@ -1,0 +1,71 @@
+/* TravelMate — travel-themed animated background for the auth screens.
+   Pure CSS: adds gentle depth behind the login / signup cards. */
+
+.tt-auth-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tt-auth-bg .tt-auth-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.55;
+}
+.tt-auth-bg .tt-auth-glow.g1 {
+  width: 46vw; height: 46vw; left: -10vw; top: -8vw;
+  background: radial-gradient(closest-side, #6fe3e3, rgba(111, 227, 227, 0));
+  animation: ttAuthDrift1 16s ease-in-out infinite;
+}
+.tt-auth-bg .tt-auth-glow.g2 {
+  width: 40vw; height: 40vw; right: -8vw; bottom: -10vw;
+  background: radial-gradient(closest-side, #2aa9b8, rgba(42, 169, 184, 0));
+  animation: ttAuthDrift2 20s ease-in-out infinite;
+}
+
+/* Slow-drifting clouds hint at travel without distracting */
+.tt-auth-bg .tt-auth-cloud {
+  position: absolute;
+  height: 8vh;
+  width: 26vw;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  filter: blur(12px);
+}
+.tt-auth-bg .tt-auth-cloud.c1 { top: 18vh; left: -30vw; animation: ttAuthCloud 26s linear infinite; }
+.tt-auth-bg .tt-auth-cloud.c2 { top: 62vh; left: -30vw; width: 34vw; animation: ttAuthCloud 34s 4s linear infinite; }
+
+@keyframes ttAuthDrift1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(4vw, 6vh, 0) scale(1.12); }
+}
+@keyframes ttAuthDrift2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+  50%      { transform: translate3d(-5vw, -5vh, 0) scale(0.96); }
+}
+@keyframes ttAuthCloud { to { transform: translateX(160vw); } }
+
+/* The auth card lifts and fades in on arrival */
+.tt-auth-card {
+  position: relative;
+  z-index: 1;
+  animation: ttAuthCardIn 0.6s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+@keyframes ttAuthCardIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Smooth cross-fade between login and signup */
+.tt-auth-leaving .tt-auth-card { animation: ttAuthCardOut 0.3s ease forwards; }
+@keyframes ttAuthCardOut {
+  to { opacity: 0; transform: translateY(-18px) scale(0.985); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-auth-bg { display: none; }
+  .tt-auth-card, .tt-auth-leaving .tt-auth-card { animation: none; }
+}

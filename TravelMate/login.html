@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - TravelMate</title>
+<link rel="stylesheet" href="popup-styles.css">
+<link rel="stylesheet" href="auth-animations.css">
+<style>
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #006a6a 0%, #00a0a0 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.97);
+        padding: 32px 40px;
+        border-radius: 18px;
+        width: 350px;
+        max-width: 100%;
+        color: #123c3c;
+        box-shadow: 0 22px 54px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(10px);
+    }
+
+    .logo {
+        text-align: center;
+        color: #008080;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        margin-bottom: 8px;
+    }
+
+    .tagline { text-align: center; color: #5b6b6b; margin-bottom: 28px; font-size: 14px; }
+
+    h2 { text-align: center; margin: 0 0 22px; color: #123c3c; font-size: 22px; }
+
+    label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; color: #123c3c; }
+
+    input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        margin-top: 8px;
+        border: 2px solid #dce9e9;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #008080;
+        box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.14);
+    }
+
+    input.tt-invalid { border-color: #dc3545; box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12); }
+
+    .login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        text-align: center;
+        padding: 13px;
+        margin-top: 20px;
+        background: linear-gradient(135deg, #008080, #00a6a6);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 10px 24px rgba(0, 128, 128, 0.28);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+    }
+
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0, 128, 128, 0.34); }
+    .login-btn:disabled { opacity: 0.75; cursor: progress; transform: none; }
+
+    .btn-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: btnSpin 0.8s linear infinite;
+    }
+    @keyframes btnSpin { to { transform: rotate(360deg); } }
+
+    .error-message, .success-message {
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: none;
+        text-align: center;
+        font-size: 14px;
+        animation: ttAuthCardIn 0.3s ease both;
+    }
+    .error-message { background: #ffebee; color: #c62828; border: 1px solid #ef5350; }
+    .success-message { background: #e8f5e8; color: #2e7d32; border: 1px solid #4caf50; }
+
+    p { text-align: center; margin-top: 20px; color: #5b6b6b; font-size: 14px; }
+    a { color: #008080; text-decoration: none; font-weight: 700; }
+    a:hover { text-decoration: underline; }
+
+    .forgot-password { text-align: center; margin-top: 15px; }
+    .forgot-password a { color: #5b6b6b; font-size: 14px; font-weight: 500; }
+    .back-home { text-align: center; margin-top: 20px; }
+    .back-home a { color: #008080; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="tt-auth-bg" aria-hidden="true">
+    <span class="tt-auth-glow g1"></span>
+    <span class="tt-auth-glow g2"></span>
+    <span class="tt-auth-cloud c1"></span>
+    <span class="tt-auth-cloud c2"></span>
+</div>
+
+<div class="container tt-auth-card">
+    <div class="logo">TravelMate</div>
+    <div class="tagline">Your Ultimate Travel Companion</div>
+
+    <h2>Welcome Back!</h2>
+
+    <form id="loginForm" novalidate>
+        <label for="userid">Email or Username</label>
+        <input type="text" id="userid" placeholder="Enter your email or username" autocomplete="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+
+        <div class="error-message" id="errorMessage" role="alert"></div>
+        <div class="success-message" id="successMessage" role="status"></div>
+
+        <button type="submit" class="login-btn" id="loginBtn">Login</button>
+    </form>
+
+    <div class="forgot-password">
+        <a href="#" onclick="forgotPassword(); return false;">Forgot Password?</a>
+    </div>
+
+    <p>Don't have an account? <a href="signup.html" onclick="return tmAuthGoto(event, 'signup.html')">Sign up here</a></p>
+
+    <div class="back-home">
+        <a href="getstart.html">← Back to Home</a>
+    </div>
+</div>
+
+<script src="popup-manager.js"></script>
+<script>
+    // Sample user database (in a real app this would be server-side)
+    const users = JSON.parse(localStorage.getItem('travelmate_users') || '[]');
+
+    function tmAuthGoto(event, page) {
+        event.preventDefault();
+        document.documentElement.classList.add('tt-auth-leaving');
+        setTimeout(() => { window.location.href = page; }, 260);
+        return false;
+    }
+
+    function setLoading(btn, loading, label) {
+        if (loading) {
+            btn.dataset.label = btn.dataset.label || btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="btn-spinner"></span>' + (label || 'Signing in...');
+        } else {
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || 'Login';
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const userid = document.getElementById('userid').value.trim();
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        const btn = document.getElementById('loginBtn');
+
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        document.getElementById('userid').classList.remove('tt-invalid');
+        document.getElementById('password').classList.remove('tt-invalid');
+
+        if (!userid || !password) {
+            showError('Please fill in all fields');
+            if (!userid) document.getElementById('userid').classList.add('tt-invalid');
+            if (!password) document.getElementById('password').classList.add('tt-invalid');
+            return;
+        }
+
+        setLoading(btn, true);
+
+        // Brief processing feedback, then resolve
+        setTimeout(() => {
+            const user = users.find(u =>
+                (u.email === userid || u.username === userid) && u.password === password
+            );
+
+            if (user) {
+                localStorage.setItem('travelmate_current_user', JSON.stringify(user));
+                setLoading(btn, false);
+                showSuccess('Login successful! Redirecting...');
+                showProfilePopup('login', user);
+                setTimeout(() => { window.location.href = 'main.html'; }, 2000);
+            } else {
+                setLoading(btn, false);
+                const userExists = (users || []).find(u => u.email === userid || u.username === userid);
+                if (userExists) {
+                    showErrorPopup('Login Failed', 'Incorrect password. Please try again.');
+                } else {
+                    showErrorPopup('Login Failed', 'Account not found. Please sign up first or check your credentials.');
+                }
+            }
+        }, 600);
+    });
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+
+    function forgotPassword() {
+        popupManager.createPopup({
+            icon: '🔑',
+            title: 'Reset Password',
+            message: 'Enter your email address and we will send password reset instructions.',
+            buttons: [
+                { text: 'Cancel', class: 'popup-btn-secondary' },
+                {
+                    text: 'Send Reset Link',
+                    class: 'popup-btn-primary',
+                    action: () => {
+                        const email = prompt('Please enter your email address:');
+                        if (email) {
+                            const user = users.find(u => u.email === email);
+                            if (user) {
+                                showSuccessPopup('Password Reset', 'Password reset instructions have been sent to your email address.');
+                            } else {
+                                showErrorPopup('Email Not Found', 'Email address not found. Please check your email or sign up for a new account.');
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+    }
+</script>
+
+</body>
+</html>

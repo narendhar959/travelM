@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelMate - Holiday Tours</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #008080;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tour-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 15px 20px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: white;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s;
+      color: #666;
+    }
+
+    .tab.active {
+      background: #008080;
+      color: white;
+    }
+
+    .tab:hover:not(.active) {
+      background: #f0f0f0;
+    }
+
+    .tour-content {
+      display: none;
+    }
+
+    .tour-content.active {
+      display: block;
+    }
+
+    .search-section {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .search-form {
+      display: flex;
+      gap: 15px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .search-btn {
+      background: #008080;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      height: fit-content;
+    }
+
+    .tours-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .tour-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .tour-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .tour-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(45deg, #008080, #00a0a0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tour-info {
+      padding: 20px;
+    }
+
+    .tour-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #008080;
+      margin-bottom: 10px;
+    }
+
+    .tour-duration {
+      color: #666;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .tour-highlights {
+      margin-bottom: 15px;
+    }
+
+    .tour-highlights h4 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .tour-highlights ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #666;
+    }
+
+    .tour-highlights li {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .tour-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .tour-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #e74c3c;
+    }
+
+    .tour-price-per {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .book-tour-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .book-tour-btn:hover {
+      background: #218838;
+    }
+
+    .tour-features {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .feature-tag {
+      background: #e8f5e8;
+      color: #2e7d32;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 50px;
+      color: #666;
+      background: white;
+      border-radius: 15px;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .search-form {
+        flex-direction: column;
+      }
+      
+      .form-group {
+        min-width: 100%;
+      }
+      
+      .tour-tabs {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="main.html" class="back-btn">← Back</a>
+    <h1>🏖️ Holiday Tours & Packages</h1>
+    <p>Discover amazing destinations with our curated tour packages</p>
+  </div>
+
+  <div class="container">
+    <div class="tour-tabs">
+      <button class="tab active" onclick="showTourType('weekend')">🌟 Weekend Getaways</button>
+      <button class="tab" onclick="showTourType('monthly')">🗓️ Monthly Packages</button>
+      <button class="tab" onclick="showTourType('custom')">✈️ Custom Tours</button>
+    </div>
+
+    <!-- Weekend Tours -->
+    <div id="weekend" class="tour-content active">
+      <div class="search-section">
+        <h3 style="margin-top: 0; color: #008080;">Weekend Getaways (2-3 Days)</h3>
+        <div class="search-form">
+          <div class="form-group">
+            <label for="weekend-destination">Destination</label>
+            <input type="text" id="weekend-destination" placeholder="Where do you want to go?">
+          </div>
+          <div class="form-group">
+            <label for="weekend-date">Departure Date</label>
+            <input type="date" id="weekend-date">
+          </div>
+          <div class="form-group">
+            <label for="weekend-travelers">Travelers</label>
+            <select id="weekend-travelers">
+              <option value="1">1 Person</option>
+              <option value="2">2 People</option>
+              <option value="3">3 People</option>
+              <option value="4">4 People</option>
+              <option value="5+">5+ People</option>
+            </select>
+          </div>
+          <button class="search-btn" onclick="searchWeekendTours()">Search Tours</button>
+        </div>
+      </div>
+
+      <div class="tours-grid" id="weekend-results">
+        <!-- Weekend tours will be populated here -->
+      </div>
+    </div>
+
+    <!-- Monthly Tours -->
+    <div id="monthly" class="tour-content">
+      <div class="search-section">
+        <h3 style="margin-top: 0; color: #008080;">Monthly Packages (7-30 Days)</h3>
+        <div class="search-form">
+          <div class="form-group">
+            <label for="monthly-destination">Destination</label>
+            <input type="text" id="monthly-destination" placeholder="Where do you want to go?">
+          </div>
+          <div class="form-group">
+            <label for="monthly-duration">Duration</label>
+            <select id="monthly-duration">
+              <option value="7">1 Week</option>
+              <option value="14">2 Weeks</option>
+              <option value="21">3 Weeks</option>
+              <option value="30">1 Month</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="monthly-date">Departure Date</label>
+            <input type="date" id="monthly-date">
+          </div>
+          <div class="form-group">
+            <label for="monthly-travelers">Travelers</label>
+            <select id="monthly-travelers">
+              <option value="1">1 Person</option>
+              <option value="2">2 People</option>
+              <option value="3">3 People</option>
+              <option value="4">4 People</option>
+              <option value="5+">5+ People</option>
+            </select>
+          </div>
+          <button class="search-btn" onclick="searchMonthlyTours()">Search Packages</button>
+        </div>
+      </div>
+
+      <div class="tours-grid" id="monthly-results">
+        <!-- Monthly tours will be populated here -->
+      </div>
+    </div>
+
+    <!-- Custom Tours -->
+    <div id="custom" class="tour-content">
+      <div class="search-section">
+        <h3 style="margin-top: 0; color: #008080;">Custom Tour Planning</h3>
+        <div class="search-form">
+          <div class="form-group">
+            <label for="custom-destination">Preferred Destinations</label>
+            <input type="text" id="custom-destination" placeholder="Multiple destinations (comma separated)">
+          </div>
+          <div class="form-group">
+            <label for="custom-budget">Budget Range</label>
+            <select id="custom-budget">
+              <option value="budget">Budget (₹10,000 - ₹25,000)</option>
+              <option value="mid">Mid-range (₹25,000 - ₹50,000)</option>
+              <option value="luxury">Luxury (₹50,000+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-duration">Duration (Days)</label>
+            <input type="number" id="custom-duration" placeholder="Number of days" min="1" max="365">
+          </div>
+          <button class="search-btn" onclick="planCustomTour()">Plan My Tour</button>
+        </div>
+      </div>
+
+      <div class="tours-grid" id="custom-results">
+        <div style="background: white; padding: 40px; border-radius: 15px; text-align: center;">
+          <h3 style="color: #008080; margin-bottom: 20px;">🎯 Personalized Tour Planning</h3>
+          <p style="color: #666; margin-bottom: 30px;">
+            Our travel experts will create a customized itinerary based on your preferences, budget, and interests.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+              <h4 style="color: #008080; margin-bottom: 10px;">🗺️ Custom Itinerary</h4>
+              <p style="font-size: 14px; color: #666;">Tailored to your interests</p>
+            </div>
+            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+              <h4 style="color: #008080; margin-bottom: 10px;">💰 Budget Planning</h4>
+              <p style="font-size: 14px; color: #666;">Fits your budget perfectly</p>
+            </div>
+            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+              <h4 style="color: #008080; margin-bottom: 10px;">📞 24/7 Support</h4>
+              <p style="font-size: 14px; color: #666;">Round-the-clock assistance</p>
+            </div>
+          </div>
+          <button class="book-tour-btn" style="padding: 15px 30px; font-size: 16px;" onclick="contactTravelExpert()">
+            Contact Travel Expert
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample tour data
+    const weekendTours = [
+      {
+        title: "Goa Beach Weekend",
+        duration: "2 Days, 1 Night",
+        price: "₹8,500",
+        pricePerPerson: "per person",
+        image: "🏖️ Beach Paradise",
+        highlights: ["Beach activities", "Water sports", "Local cuisine", "Sunset views"],
+        features: ["Hotel included", "Meals", "Transport"],
+        destination: "goa"
+      },
+      {
+        title: "Shimla Hill Station",
+        duration: "3 Days, 2 Nights",
+        price: "₹12,000",
+        pricePerPerson: "per person",
+        image: "🏔️ Mountain Retreat",
+        highlights: ["Scenic views", "Cool weather", "Mall road shopping", "Adventure activities"],
+        features: ["Hotel included", "Breakfast", "Sightseeing"],
+        destination: "shimla"
+      },
+      {
+        title: "Jaipur Heritage Tour",
+        duration: "2 Days, 1 Night",
+        price: "₹9,500",
+        pricePerPerson: "per person",
+        image: "🏰 Royal Experience",
+        highlights: ["Palace visits", "Cultural shows", "Local markets", "Rajasthani cuisine"],
+        features: ["Heritage hotel", "All meals", "Guide included"],
+        destination: "jaipur"
+      },
+      {
+        title: "Rishikesh Adventure",
+        duration: "2 Days, 1 Night",
+        price: "₹7,500",
+        pricePerPerson: "per person",
+        image: "🏞️ Adventure Hub",
+        highlights: ["River rafting", "Bungee jumping", "Yoga sessions", "Ganga aarti"],
+        features: ["Adventure gear", "Meals", "Camping"],
+        destination: "rishikesh"
+      }
+    ];
+
+    const monthlyTours = [
+      {
+        title: "Kerala Backwaters & Hills",
+        duration: "7 Days, 6 Nights",
+        price: "₹35,000",
+        pricePerPerson: "per person",
+        image: "🛶 Backwater Bliss",
+        highlights: ["Houseboat stay", "Munnar tea gardens", "Spice plantations", "Ayurvedic treatments"],
+        features: ["All accommodations", "All meals", "Transport", "Guide"],
+        destination: "kerala"
+      },
+      {
+        title: "Rajasthan Royal Circuit",
+        duration: "14 Days, 13 Nights",
+        price: "₹65,000",
+        pricePerPerson: "per person",
+        image: "👑 Royal Journey",
+        highlights: ["Multiple cities", "Palace hotels", "Desert safari", "Cultural experiences"],
+        features: ["Luxury hotels", "All meals", "AC transport", "Expert guide"],
+        destination: "rajasthan"
+      },
+      {
+        title: "Northeast India Explorer",
+        duration: "21 Days, 20 Nights",
+        price: "₹85,000",
+        pricePerPerson: "per person",
+        image: "🌿 Hidden Gems",
+        highlights: ["7 sister states", "Unique cultures", "Natural beauty", "Adventure activities"],
+        features: ["All permits", "Accommodations", "Meals", "Local guides"],
+        destination: "northeast"
+      },
+      {
+        title: "South India Temple Trail",
+        duration: "30 Days, 29 Nights",
+        price: "₹95,000",
+        pricePerPerson: "per person",
+        image: "🕉️ Spiritual Journey",
+        highlights: ["Ancient temples", "Classical music", "Traditional arts", "Sacred sites"],
+        features: ["Heritage hotels", "Vegetarian meals", "Cultural programs", "Spiritual guide"],
+        destination: "south india"
+      }
+    ];
+
+    function showTourType(type) {
+      // Hide all tour contents
+      document.querySelectorAll('.tour-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tour content and activate tab
+      document.getElementById(type).classList.add('active');
+      event.target.classList.add('active');
+      
+      // Load default tours for the selected type
+      if (type === 'weekend') {
+        displayTours(weekendTours, 'weekend-results');
+      } else if (type === 'monthly') {
+        displayTours(monthlyTours, 'monthly-results');
+      }
+    }
+
+    function displayTours(tours, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      tours.forEach((tour, index) => {
+        const tourCard = document.createElement('div');
+        tourCard.className = 'tour-card';
+        tourCard.innerHTML = `
+          <div class="tour-image">${tour.image}</div>
+          <div class="tour-info">
+            <div class="tour-title">${tour.title}</div>
+            <div class="tour-duration">⏱️ ${tour.duration}</div>
+            <div class="tour-features">
+              ${tour.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+            </div>
+            <div class="tour-highlights">
+              <h4>✨ Highlights:</h4>
+              <ul>
+                ${tour.highlights.map(highlight => `<li>${highlight}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="tour-footer">
+              <div>
+                <div class="tour-price">${tour.price}</div>
+                <div class="tour-price-per">${tour.pricePerPerson}</div>
+              </div>
+              <button class="book-tour-btn" onclick="bookTour('${tour.title}', '${tour.price}')">
+                Book Now
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(tourCard);
+      });
+    }
+
+    function searchWeekendTours() {
+      const destination = document.getElementById('weekend-destination').value.toLowerCase();
+      const date = document.getElementById('weekend-date').value;
+      const travelers = document.getElementById('weekend-travelers').value;
+      
+      if (!destination && !date) {
+        displayTours(weekendTours, 'weekend-results');
+        return;
+      }
+      
+      let filteredTours = weekendTours;
+      
+      if (destination) {
+        filteredTours = filteredTours.filter(tour => 
+          tour.destination.includes(destination) || 
+          tour.title.toLowerCase().includes(destination)
+        );
+      }
+      
+      displayTours(filteredTours, 'weekend-results');
+      
+      if (filteredTours.length === 0) {
+        document.getElementById('weekend-results').innerHTML = `
+          <div class="no-results">
+            <h3>No tours found</h3>
+            <p>Try searching for different destinations like Goa, Shimla, Jaipur, or Rishikesh</p>
+          </div>
+        `;
+      }
+    }
+
+    function searchMonthlyTours() {
+      const destination = document.getElementById('monthly-destination').value.toLowerCase();
+      const duration = document.getElementById('monthly-duration').value;
+      const date = document.getElementById('monthly-date').value;
+      
+      if (!destination && !duration && !date) {
+        displayTours(monthlyTours, 'monthly-results');
+        return;
+      }
+      
+      let filteredTours = monthlyTours;
+      
+      if (destination) {
+        filteredTours = filteredTours.filter(tour => 
+          tour.destination.includes(destination) || 
+          tour.title.toLowerCase().includes(destination)
+        );
+      }
+      
+      displayTours(filteredTours, 'monthly-results');
+      
+      if (filteredTours.length === 0) {
+        document.getElementById('monthly-results').innerHTML = `
+          <div class="no-results">
+            <h3>No packages found</h3>
+            <p>Try searching for Kerala, Rajasthan, Northeast India, or South India</p>
+          </div>
+        `;
+      }
+    }
+
+    function planCustomTour() {
+      const destinations = document.getElementById('custom-destination').value;
+      const budget = document.getElementById('custom-budget').value;
+      const duration = document.getElementById('custom-duration').value;
+      
+      if (!destinations || !duration) {
+        tmNotify('Missing Details', 'Please fill in destinations and duration for custom tour planning.', 'error');
+        return;
+      }
+
+      tmNotify('Request Submitted', `Custom tour request received for ${destinations} (${duration} days, ${budget} budget). Our expert will contact you within 24 hours.`, 'success');
+    }
+
+    function contactTravelExpert() {
+      tmNotify('Travel Expert', 'Reach us at +91-9876543210 or expert@travelmate.com — available 24/7 to plan your trip.', 'info');
+    }
+
+    function bookTour(tourName, price) {
+      const user = JSON.parse(localStorage.getItem('travelmate_current_user') || 'null');
+      
+      if (!user) {
+        tmNotify('Login Required', 'Please login to book tours. Redirecting to login...', 'error');
+        setTimeout(() => { window.location.href = 'login.html'; }, 1600);
+        return;
+      }
+      
+      const bookingId = `TOUR${Date.now()}`;
+      
+      // Store booking
+      const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+      const newBooking = {
+        id: bookingId,
+        type: 'tour',
+        title: tourName,
+        price: price,
+        userId: user.id,
+        date: new Date().toISOString(),
+        status: 'confirmed'
+      };
+      
+      bookings.push(newBooking);
+      localStorage.setItem('travelmate_bookings', JSON.stringify(bookings));
+      
+      const openTicket = () => {
+        window.location.href = `ticket.html?id=${bookingId}&type=tour`;
+      };
+
+      if (window.TravelTransitions && !window.TravelTransitions.prefersReducedMotion()) {
+        window.TravelTransitions.playSuccess('tour', {
+          title: 'Tour Confirmed!',
+          subtitle: `${tourName} is booked.`,
+          details: [
+            { label: 'Booking ID', value: bookingId },
+            { label: 'Tour', value: tourName },
+            { label: 'Amount Paid', value: price }
+          ],
+          buttonLabel: 'View My Ticket',
+          autoClose: 9000,
+          onFinish: openTicket
+        });
+      } else {
+        openTicket();
+      }
+    }
+
+    // Initialize with weekend tours
+    document.addEventListener('DOMContentLoaded', function() {
+      displayTours(weekendTours, 'weekend-results');
+      
+      // Set minimum date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('weekend-date').min = today;
+      document.getElementById('monthly-date').min = today;
+    });
+  </script>
+  <script src="travel-transitions.js"></script>
+  <script src="travel-message.js"></script>
+</body>
+</html>

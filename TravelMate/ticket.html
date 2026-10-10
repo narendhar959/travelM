@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelMate - Booking Ticket</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #008080;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .ticket-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(45deg, #008080, #00a0a0);
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px dashed #ddd;
+    }
+
+    .service-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .service-icon {
+      font-size: 48px;
+      color: #008080;
+    }
+
+    .service-details h2 {
+      margin: 0;
+      color: #008080;
+      font-size: 24px;
+    }
+
+    .service-details p {
+      margin: 5px 0 0 0;
+      color: #666;
+    }
+
+    .booking-status {
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+    }
+
+    .ticket-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .ticket-section h3 {
+      color: #008080;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 8px 0;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .info-value {
+      color: #333;
+    }
+
+    .route-section {
+      grid-column: 1 / -1;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .route-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .route-arrow {
+      color: #008080;
+      font-size: 24px;
+    }
+
+    .qr-code {
+      text-align: center;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .qr-placeholder {
+      width: 150px;
+      height: 150px;
+      background: #ddd;
+      margin: 0 auto 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #666;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #008080;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #006666;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #545b62;
+      transform: translateY(-2px);
+    }
+
+    .important-info {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+
+    .important-info h4 {
+      color: #856404;
+      margin: 0 0 10px 0;
+    }
+
+    .important-info ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #856404;
+    }
+
+    @media (max-width: 768px) {
+      .ticket-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="main.html" class="back-btn">← Back</a>
+    <h1>🎫 Your Booking Ticket</h1>
+    <p>Booking confirmed successfully</p>
+  </div>
+
+  <div class="container">
+    <div class="ticket-card" id="ticket-card">
+      <div class="ticket-header">
+        <div class="service-info">
+          <div class="service-icon" id="service-icon">✈️</div>
+          <div class="service-details">
+            <h2 id="service-title">Flight Booking</h2>
+            <p id="service-subtitle">Domestic Flight</p>
+          </div>
+        </div>
+        <div class="booking-status">CONFIRMED</div>
+      </div>
+
+      <div class="route-section">
+        <div class="route-display">
+          <span id="route-from">Mumbai</span>
+          <span class="route-arrow">✈️</span>
+          <span id="route-to">Delhi</span>
+        </div>
+      </div>
+
+      <div class="ticket-content">
+        <div class="ticket-section">
+          <h3>Booking Details</h3>
+          <div class="info-row">
+            <span class="info-label">Booking ID:</span>
+            <span class="info-value" id="booking-id">BK123456789</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Passenger Name:</span>
+            <span class="info-value" id="passenger-name">John Doe</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Travel Date:</span>
+            <span class="info-value" id="travel-date">March 15, 2025</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Booking Date:</span>
+            <span class="info-value" id="booking-date">March 10, 2025</span>
+          </div>
+        </div>
+
+        <div class="ticket-section">
+          <h3>Journey Details</h3>
+          <div class="info-row">
+            <span class="info-label" id="time-label">Departure:</span>
+            <span class="info-value" id="departure-time">06:00 AM</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label" id="arrival-label">Arrival:</span>
+            <span class="info-value" id="arrival-time">08:30 AM</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label" id="duration-label">Duration:</span>
+            <span class="info-value" id="duration">2h 30m</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Total Amount:</span>
+            <span class="info-value" id="total-amount" style="color: #28a745; font-weight: bold;">₹4,500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="qr-code">
+        <div class="qr-placeholder">📱</div>
+        <p><strong>Scan QR Code</strong></p>
+        <p style="color: #666; font-size: 14px;">Show this code at check-in</p>
+      </div>
+
+      <div class="important-info" id="important-info">
+        <h4>⚠️ Important Information</h4>
+        <ul id="info-list">
+          <li>Please arrive at the airport 2 hours before departure</li>
+          <li>Carry a valid government-issued photo ID</li>
+          <li>Check-in closes 45 minutes before departure</li>
+          <li>Baggage allowance: 15kg check-in + 7kg cabin</li>
+        </ul>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="downloadTicket()">📥 Download Ticket</button>
+        <button class="btn btn-secondary" onclick="shareTicket()">📤 Share Ticket</button>
+        <button class="btn btn-secondary" onclick="printTicket()">🖨️ Print Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      var results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    function loadTicketData() {
+      const bookingId = getUrlParameter('id');
+      const type = getUrlParameter('type');
+      
+      if (!bookingId || !type) {
+        // Load from localStorage if no URL params
+        const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+        const latestBooking = bookings[bookings.length - 1];
+        
+        if (latestBooking) {
+          displayTicket(latestBooking);
+        }
+        return;
+      }
+
+      // Load specific booking
+      const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
+      const booking = bookings.find(b => b.id === bookingId);
+      
+      if (booking) {
+        displayTicket(booking);
+      }
+    }
+
+    function displayTicket(booking) {
+      const user = JSON.parse(localStorage.getItem('travelmate_current_user') || '{}');
+      
+      // Update service icon and title
+      const icons = {
+        flight: '✈️',
+        train: '🚆',
+        bus: '🚌',
+        cab: '🚗'
+      };
+      
+      const titles = {
+        flight: 'Flight Booking',
+        train: 'Train Booking',
+        bus: 'Bus Booking',
+        cab: 'Cab Booking'
+      };
+
+      document.getElementById('service-icon').textContent = icons[booking.type] || '🎫';
+      document.getElementById('service-title').textContent = titles[booking.type] || 'Booking';
+      document.getElementById('service-subtitle').textContent = booking.title || '';
+
+      // Update route
+      document.getElementById('route-from').textContent = booking.from || 'Origin';
+      document.getElementById('route-to').textContent = booking.to || 'Destination';
+
+      // Update booking details
+      document.getElementById('booking-id').textContent = booking.id;
+      document.getElementById('passenger-name').textContent = `${user.firstname || ''} ${user.lastname || ''}`.trim() || 'Passenger';
+      document.getElementById('travel-date').textContent = new Date(booking.travelDate || booking.date).toLocaleDateString();
+      document.getElementById('booking-date').textContent = new Date(booking.date).toLocaleDateString();
+
+      // Update journey details based on type
+      if (booking.type === 'flight') {
+        document.getElementById('departure-time').textContent = '06:00 AM';
+        document.getElementById('arrival-time').textContent = '08:30 AM';
+        document.getElementById('duration').textContent = '2h 30m';
+      } else if (booking.type === 'train') {
+        document.getElementById('time-label').textContent = 'Departure:';
+        document.getElementById('arrival-label').textContent = 'Arrival:';
+        document.getElementById('departure-time').textContent = '08:00 AM';
+        document.getElementById('arrival-time').textContent = '06:30 PM';
+        document.getElementById('duration').textContent = '10h 30m';
+      } else if (booking.type === 'bus') {
+        document.getElementById('departure-time').textContent = '10:00 PM';
+        document.getElementById('arrival-time').textContent = '06:00 AM';
+        document.getElementById('duration').textContent = '8h 00m';
+      } else if (booking.type === 'cab') {
+        document.getElementById('time-label').textContent = 'Pickup Time:';
+        document.getElementById('arrival-label').textContent = 'Est. Arrival:';
+        document.getElementById('duration-label').textContent = 'Est. Duration:';
+        document.getElementById('departure-time').textContent = booking.travelTime || '10:00 AM';
+        document.getElementById('arrival-time').textContent = '10:45 AM';
+        document.getElementById('duration').textContent = '45 mins';
+      }
+
+      document.getElementById('total-amount').textContent = booking.price;
+
+      // Update important information based on type
+      updateImportantInfo(booking.type);
+    }
+
+    function updateImportantInfo(type) {
+      const infoList = document.getElementById('info-list');
+      
+      const infoData = {
+        flight: [
+          'Please arrive at the airport 2 hours before departure',
+          'Carry a valid government-issued photo ID',
+          'Check-in closes 45 minutes before departure',
+          'Baggage allowance: 15kg check-in + 7kg cabin'
+        ],
+        train: [
+          'Please arrive at the station 30 minutes before departure',
+          'Carry a valid government-issued photo ID',
+          'Keep your ticket and ID ready for verification',
+          'Check platform number before boarding'
+        ],
+        bus: [
+          'Please arrive at the bus station 15 minutes before departure',
+          'Carry a valid government-issued photo ID',
+          'Keep your ticket ready for verification',
+          'Baggage allowance: 20kg per passenger'
+        ],
+        cab: [
+          'Driver will contact you 15 minutes before pickup',
+          'Please be ready at the pickup location on time',
+          'Carry a valid government-issued photo ID',
+          'You can track your ride in real-time'
+        ]
+      };
+
+      infoList.innerHTML = '';
+      (infoData[type] || infoData.flight).forEach(info => {
+        const li = document.createElement('li');
+        li.textContent = info;
+        infoList.appendChild(li);
+      });
+    }
+
+    function downloadTicket() {
+      // Create a downloadable version
+      const ticketContent = document.getElementById('ticket-card').innerHTML;
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>TravelMate Ticket</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .ticket-card { border: 2px solid #008080; padding: 20px; border-radius: 10px; }
+              .action-buttons { display: none; }
+            </style>
+          </head>
+          <body>
+            <div class="ticket-card">${ticketContent}</div>
+            <script>window.print();</script>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+
+    function shareTicket() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'TravelMate Booking Ticket',
+          text: 'Check out my travel booking!',
+          url: window.location.href
+        });
+      } else {
+        // Fallback: copy link to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          tmNotify('Link Copied', 'Ticket link copied to clipboard.', 'success');
+        });
+      }
+    }
+
+    function printTicket() {
+      window.print();
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTicketData();
+    });
+  </script>
+  <script src="travel-transitions.js"></script>
+  <script src="travel-message.js"></script>
+</body>
+</html>

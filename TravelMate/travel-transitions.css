@@ -1,0 +1,565 @@
+/* ============================================================
+   TravelMate — Cinematic travel transitions
+   Shared system: overlay scenes, per-category motion identity,
+   destination-page reveal and booking-success animation.
+   Lightweight: transform/opacity only, no external libraries.
+   ============================================================ */
+
+/* ---------- Base overlay ---------- */
+.tt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+  contain: strict;
+}
+.tt-overlay.tt-visible { opacity: 1; }
+
+html.tt-lock,
+html.tt-lock body { overflow: hidden; }
+
+.tt-backdrop {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tt-scene {
+  position: absolute;
+  inset: 0;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.tt-actor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -50%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+.tt-actor svg { display: block; height: auto; }
+
+.tt-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Caption that names the destination section */
+.tt-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 9vh;
+  transform: translateX(-50%);
+  padding: 10px 22px;
+  border-radius: 999px;
+  font: 600 15px/1.2 Arial, Helvetica, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 40, 40, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+  animation: ttCaptionIn 0.5s ease both;
+}
+@keyframes ttCaptionIn {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ============================================================
+   1. FLIGHT — banking takeoff, bottom-left to top-right
+   ============================================================ */
+.tt-overlay.tt-flight .tt-backdrop {
+  background: linear-gradient(165deg, #063b46 0%, #0b6d78 45%, #7fd3d8 100%);
+}
+.tt-overlay.tt-flight .tt-fx::before,
+.tt-overlay.tt-flight .tt-fx::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  filter: blur(1px);
+}
+.tt-overlay.tt-flight .tt-fx::before {
+  width: 40vw; height: 16vw; left: -50vw; top: 62vh;
+  animation: ttCloud 1.6s ease-out forwards;
+}
+.tt-overlay.tt-flight .tt-fx::after {
+  width: 30vw; height: 12vw; left: -40vw; top: 24vh;
+  animation: ttCloud 1.6s 0.15s ease-out forwards;
+}
+@keyframes ttCloud {
+  from { opacity: 0; transform: translateX(0); }
+  35%  { opacity: 0.85; }
+  to   { opacity: 0; transform: translateX(150vw); }
+}
+.tt-flight .tt-actor {
+  animation: ttFlightAct 1.05s cubic-bezier(0.42, 0.05, 0.55, 0.95) forwards;
+}
+@keyframes ttFlightAct {
+  0%   { opacity: 0; transform: translate3d(-46vw, 36vh, 0) rotate(20deg) scale(0.5); }
+  14%  { opacity: 1; }
+  52%  { transform: translate3d(-4vw, 2vh, 0) rotate(-14deg) scale(0.95); }
+  86%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(46vw, -46vh, 0) rotate(-32deg) scale(1.04); }
+}
+.tt-flight .tt-contrail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34vw;
+  height: 6px;
+  margin-left: -34vw;
+  margin-top: -3px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+  filter: blur(2.5px);
+  transform-origin: right center;
+  animation: ttContrail 1.05s cubic-bezier(0.42, 0.05, 0.55, 0.95) forwards;
+}
+@keyframes ttContrail {
+  0%   { opacity: 0; transform: translate3d(-44vw, 34vh, 0) rotate(-18deg) scaleX(0.15); }
+  45%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translate3d(2vw, -6vh, 0) rotate(-18deg) scaleX(1); }
+}
+
+/* ============================================================
+   2. TRAIN — station departure, left to right
+   ============================================================ */
+.tt-overlay.tt-train .tt-backdrop {
+  background: linear-gradient(120deg, #0d2b33 0%, #14606a 60%, #58b6bd 100%);
+}
+.tt-overlay.tt-train .tt-fx::before,
+.tt-overlay.tt-train .tt-fx::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.75) 0 42px, rgba(255,255,255,0) 42px 96px);
+  opacity: 0.7;
+}
+.tt-overlay.tt-train .tt-fx::before { top: calc(50% + 8vh); animation: ttTrack 0.7s linear infinite; }
+.tt-overlay.tt-train .tt-fx::after  { top: calc(50% + 11vh); animation: ttTrack 0.7s linear infinite reverse; }
+@keyframes ttTrack { to { transform: translateX(-96px); } }
+.tt-train .tt-actor {
+  animation: ttTrainAct 1.1s cubic-bezier(0.38, 0, 0.6, 1) forwards;
+}
+@keyframes ttTrainAct {
+  0%   { opacity: 0; transform: translate3d(-72vw, 0, 0) scale(0.96); filter: blur(3px); }
+  12%  { opacity: 1; filter: blur(2px); }
+  70%  { filter: blur(0); }
+  100% { opacity: 1; transform: translate3d(72vw, 0, 0) scale(1); filter: blur(0); }
+}
+.tt-wheel { animation: ttSpin 0.32s linear infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes ttSpin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   3. CAB — zigzag journey, bottom to top with animated road
+   ============================================================ */
+.tt-overlay.tt-cab .tt-backdrop {
+  background: linear-gradient(200deg, #07202b 0%, #0c4f5c 55%, #1f9aa5 100%);
+}
+.tt-cab .tt-actor {
+  animation: ttCabAct 1.1s cubic-bezier(0.4, 0.05, 0.6, 0.95) forwards;
+}
+@keyframes ttCabAct {
+  0%   { opacity: 0; transform: translate3d(-24vw, 46vh, 0) rotate(-4deg) scale(0.7); }
+  14%  { opacity: 1; }
+  32%  { transform: translate3d(16vw, 18vh, 0) rotate(5deg) scale(0.86); }
+  60%  { transform: translate3d(-13vw, -12vh, 0) rotate(-6deg) scale(0.94); }
+  100% { opacity: 0.95; transform: translate3d(20vw, -50vh, 0) rotate(4deg) scale(1.02); }
+}
+.tt-cab .tt-road {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62vw;
+  height: 76vh;
+  transform: translate(-50%, -50%);
+  opacity: 0.85;
+}
+.tt-cab .tt-road path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 26 22;
+  animation: ttRoadDraw 1.1s linear forwards;
+}
+@keyframes ttRoadDraw {
+  from { stroke-dashoffset: 620; opacity: 0; }
+  25%  { opacity: 1; }
+  to   { stroke-dashoffset: 0; opacity: 0.7; }
+}
+
+/* ============================================================
+   4. CRUISE — ocean reveal, ship sailing over waves
+   ============================================================ */
+.tt-overlay.tt-cruise .tt-backdrop {
+  background: linear-gradient(180deg, #062a3d 0%, #0e6b7d 45%, #1791a3 72%, #7ad4dc 100%);
+}
+.tt-cruise .tt-actor {
+  animation: ttCruiseAct 1.15s cubic-bezier(0.4, 0.05, 0.6, 0.95) forwards;
+}
+@keyframes ttCruiseAct {
+  0%   { opacity: 0; transform: translate3d(-62vw, 6vh, 0) scale(0.94); }
+  12%  { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(62vw, 0, 0) scale(1); }
+}
+.tt-cruise .tt-bob { animation: ttBob 1.05s ease-in-out infinite; }
+@keyframes ttBob {
+  0%, 100% { transform: translateY(-1.2vh) rotate(-1deg); }
+  50%      { transform: translateY(1.4vh) rotate(1.2deg); }
+}
+.tt-cruise .tt-waves {
+  position: absolute;
+  left: -10vw;
+  right: -10vw;
+  bottom: 0;
+  height: 30vh;
+}
+.tt-cruise .tt-waves span {
+  position: absolute;
+  left: 0;
+  width: 220vw;
+  height: 100%;
+  background-repeat: repeat-x;
+  background-size: 60vw 100%;
+}
+.tt-cruise .tt-waves span:nth-child(1) {
+  bottom: 6vh; opacity: 0.55;
+  background-image: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.65) 0 8%, rgba(255,255,255,0) 8.4%);
+  background-size: 26vw 9vh;
+  animation: ttWave 6s linear infinite;
+}
+.tt-cruise .tt-waves span:nth-child(2) {
+  bottom: 1vh; opacity: 0.8;
+  background-image: radial-gradient(circle at 50% 100%, rgba(255,255,255,0.85) 0 10%, rgba(255,255,255,0) 10.4%);
+  background-size: 34vw 12vh;
+  animation: ttWave 9s linear infinite reverse;
+}
+@keyframes ttWave { to { transform: translateX(-34vw); } }
+
+/* ============================================================
+   5. BUS — road transition, right to left
+   ============================================================ */
+.tt-overlay.tt-bus .tt-backdrop {
+  background: linear-gradient(140deg, #123a3f 0%, #1a7079 55%, #86d3d8 100%);
+}
+.tt-overlay.tt-bus .tt-fx::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50% + 9vh);
+  height: 4px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.85) 0 56px, rgba(255,255,255,0) 56px 120px);
+  animation: ttTrack 0.55s linear infinite;
+}
+.tt-bus .tt-actor {
+  animation: ttBusAct 1s cubic-bezier(0.36, 0, 0.62, 1) forwards;
+}
+@keyframes ttBusAct {
+  0%   { opacity: 0; transform: translate3d(64vw, 0, 0) scale(0.94); filter: blur(3px); }
+  14%  { opacity: 1; filter: blur(2px); }
+  65%  { filter: blur(0); }
+  100% { opacity: 1; transform: translate3d(-64vw, 0, 0) scale(1); filter: blur(0); }
+}
+
+/* ============================================================
+   6. TOUR — landmark reveal with parallax + camera zoom
+   ============================================================ */
+.tt-overlay.tt-tour .tt-backdrop {
+  background: linear-gradient(180deg, #2a1250 0%, #7b3f7a 38%, #e08a5a 76%, #f6c98a 100%);
+}
+.tt-tour .tt-scene { animation: ttCamZoom 1.1s ease-out forwards; }
+@keyframes ttCamZoom {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.12) translateY(-1.5vh); }
+}
+.tt-tour .tt-landmarks {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 70vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4vw;
+}
+.tt-tour .tt-landmark {
+  opacity: 0;
+  transform: translateY(46vh) scale(0.94);
+  animation: ttRise 0.95s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+.tt-tour .tt-landmark:nth-child(1) { animation-delay: 0.05s; }
+.tt-tour .tt-landmark:nth-child(2) { animation-delay: 0.18s; }
+.tt-tour .tt-landmark:nth-child(3) { animation-delay: 0.31s; }
+.tt-tour .tt-landmark:nth-child(4) { animation-delay: 0.44s; }
+@keyframes ttRise {
+  0%   { opacity: 0; transform: translateY(46vh) scale(0.94); }
+  70%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(6vh) scale(1); }
+}
+.tt-tour .tt-sun {
+  position: absolute;
+  right: 14vw;
+  top: 22vh;
+  width: 16vw;
+  height: 16vw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 240, 200, 0.95), rgba(255, 200, 120, 0));
+  animation: ttSun 1.4s ease-out both;
+}
+@keyframes ttSun { from { opacity: 0; transform: scale(0.7); } to { opacity: 0.9; transform: scale(1); } }
+
+/* ============================================================
+   7. HOTEL — building reveal, windows lighting up
+   ============================================================ */
+.tt-overlay.tt-hotel .tt-backdrop {
+  background: linear-gradient(180deg, #0b1b3a 0%, #17456b 48%, #4d8fae 100%);
+}
+.tt-overlay.tt-hotel .tt-fx::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1.5px 1.5px at 68% 12%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1.5px 1.5px at 82% 34%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1.5px 1.5px at 32% 8%, rgba(255,255,255,0.75), transparent),
+    radial-gradient(1.5px 1.5px at 52% 26%, rgba(255,255,255,0.6), transparent);
+  animation: ttTwinkle 2.2s ease-in-out infinite;
+}
+@keyframes ttTwinkle { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.tt-hotel .tt-actor {
+  animation: ttHotelRise 1.1s cubic-bezier(0.22, 0.8, 0.28, 1) forwards;
+}
+@keyframes ttHotelRise {
+  0%   { opacity: 0; transform: translate3d(0, 52vh, 0) scale(0.96); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(0, 4vh, 0) scale(1); }
+}
+.tt-window {
+  opacity: 0.18;
+  animation: ttWindowOn 0.5s ease-out forwards;
+}
+@keyframes ttWindowOn {
+  from { opacity: 0.18; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   8. INSURANCE — shield forming, self-drawing checkmark
+   ============================================================ */
+.tt-overlay.tt-insurance .tt-backdrop {
+  background: linear-gradient(150deg, #03323a 0%, #0a5f66 55%, #46b3ad 100%);
+}
+.tt-overlay.tt-insurance .tt-fx::before,
+.tt-overlay.tt-insurance .tt-fx::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 26vw; height: 26vw;
+  margin: -13vw 0 0 -13vw;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: ttRing 1.2s ease-out forwards;
+}
+.tt-overlay.tt-insurance .tt-fx::after { animation-delay: 0.18s; }
+@keyframes ttRing {
+  0%   { opacity: 0; transform: scale(0.35); }
+  45%  { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.tt-insurance .tt-actor {
+  animation: ttShieldForm 1.05s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+@keyframes ttShieldForm {
+  0%   { opacity: 0; transform: scale(0.35) rotate(-14deg); }
+  55%  { opacity: 1; transform: scale(1.06) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.tt-check-path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: ttDraw 0.55s 0.6s cubic-bezier(0.62, 0, 0.4, 1) forwards;
+}
+@keyframes ttDraw { to { stroke-dashoffset: 0; } }
+
+/* ============================================================
+   9. GENERIC — soft teal curtain for non-service navigation
+   ============================================================ */
+.tt-overlay.tt-generic .tt-backdrop {
+  background: linear-gradient(135deg, #004d4d 0%, #008080 55%, #22a3a3 100%);
+}
+.tt-generic .tt-actor {
+  animation: ttGenericSweep 0.6s ease-out forwards;
+}
+@keyframes ttGenericSweep {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   Destination page reveal (plays on the page we navigated to)
+   ============================================================ */
+html[data-tt-enter] body { animation: ttPageEnter 0.66s cubic-bezier(0.22, 0.68, 0.2, 1) both; }
+html[data-tt-enter="flight"] body    { animation-name: ttEnterRise; }
+html[data-tt-enter="hotel"] body     { animation-name: ttEnterRise; }
+html[data-tt-enter="cab"] body       { animation-name: ttEnterRise; }
+html[data-tt-enter="train"] body     { animation-name: ttEnterSlideLeft; }
+html[data-tt-enter="bus"] body       { animation-name: ttEnterSlideLeft; }
+html[data-tt-enter="cruise"] body    { animation-name: ttEnterSlideRight; }
+html[data-tt-enter="tour"] body      { animation-name: ttEnterZoom; }
+html[data-tt-enter="insurance"] body { animation-name: ttPageEnter; }
+
+@keyframes ttPageEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ttEnterRise {
+  from { opacity: 0; transform: translateY(34px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes ttEnterSlideLeft {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ttEnterSlideRight {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ttEnterZoom {
+  from { opacity: 0; transform: scale(0.975); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* A soft veil behind the incoming page for the first moment */
+html[data-tt-enter]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 128, 128, 0.18), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  z-index: 8000;
+  animation: ttVeil 0.66s ease-out both;
+}
+@keyframes ttVeil { from { opacity: 1; } to { opacity: 0; } }
+
+/* ============================================================
+   Booking success animation
+   ============================================================ */
+.tt-overlay.tt-success {
+  pointer-events: auto;
+  background: rgba(4, 40, 44, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tt-success-card {
+  width: min(92vw, 440px);
+  background: #fff;
+  border-radius: 22px;
+  padding: 30px 26px 24px;
+  text-align: center;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.35);
+  animation: ttCardIn 0.45s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+@keyframes ttCardIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tt-success-stage {
+  position: relative;
+  height: 132px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  background: linear-gradient(150deg, #043c46, #0b8b95);
+}
+.tt-success-stage .tt-actor {
+  margin-left: 0;
+  width: 100%;
+  animation: ttSuccessFloat 2.6s ease-in-out infinite !important;
+}
+@keyframes ttSuccessFloat {
+  0%, 100% { transform: translateY(-5px); }
+  50%      { transform: translateY(5px); }
+}
+.tt-success-stage .tt-actor svg { max-height: 88px; }
+.tt-success-stage .tt-waves span { animation-duration: 5s; }
+
+.tt-success-title {
+  margin: 0 0 6px;
+  font: 700 21px/1.25 Arial, Helvetica, sans-serif;
+  color: #00706f;
+  animation: ttPageEnter 0.4s 0.12s ease both;
+}
+.tt-success-sub {
+  margin: 0 0 16px;
+  font: 400 14px/1.5 Arial, Helvetica, sans-serif;
+  color: #5b6b6b;
+}
+.tt-success-meta {
+  background: #f4f9f9;
+  border: 1px solid #e2eeee;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+.tt-success-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 400 13px/1.7 Arial, Helvetica, sans-serif;
+  color: #4a5b5b;
+}
+.tt-success-meta strong { color: #123c3c; font-weight: 700; }
+.tt-success-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font: 700 15px/1 Arial, Helvetica, sans-serif;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #008080, #00a6a6);
+  box-shadow: 0 8px 20px rgba(0, 128, 128, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tt-success-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0, 128, 128, 0.34); }
+.tt-success-btn:focus-visible { outline: 3px solid #004d4d; outline-offset: 2px; }
+.tt-success-hint { margin: 10px 0 0; font: 400 12px/1.4 Arial, Helvetica, sans-serif; color: #8a9a9a; }
+
+/* ============================================================
+   Accessibility: honour reduced-motion preferences
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .tt-overlay { display: none !important; }
+  html[data-tt-enter] body,
+  html[data-tt-enter]::after { animation: none !important; }
+  .tt-wheel, .tt-bob, .tt-cruise .tt-waves span { animation: none !important; }
+}
+
+@media (max-width: 640px) {
+  .tt-caption { font-size: 12px; padding: 8px 16px; bottom: 6vh; }
+  .tt-success-card { padding: 24px 18px 20px; }
+  .tt-tour .tt-landmarks { gap: 2vw; }
+}

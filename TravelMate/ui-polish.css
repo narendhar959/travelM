@@ -1,0 +1,42 @@
+/* TravelMate — shared micro-interactions for a premium feel */
+
+/* Smooth, consistent focus treatment across every interactive element */
+:focus-visible {
+  outline: 3px solid rgba(0, 128, 128, 0.55);
+  outline-offset: 2px;
+}
+
+/* Pointer-aware lift for cards and buttons */
+.tt-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.tt-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
+/* Visible, accessible feedback while a page/booking is working */
+.tt-busy {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.72;
+}
+.tt-busy::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: ttBusySpin 0.8s linear infinite;
+}
+@keyframes ttBusySpin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-lift, .tt-lift:hover { transition: none; transform: none; }
+  .tt-busy::after { animation: none; }
+}
