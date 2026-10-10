@@ -743,6 +743,11 @@
             </div>
           </div>
           <div class="trip-actions">
+            <button class="action-btn download-btn" onclick="event.stopPropagation(); window.location.href='trip-details.html?id=${
+              encodeURIComponent(booking.id)
+            }&from=completed'">
+              View Details
+            </button>
             <button class="action-btn review-btn" onclick="writeReview('${
               booking.id
             }')">

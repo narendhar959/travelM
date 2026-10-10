@@ -23,22 +23,45 @@
     .detail strong { font-size: 16px; overflow-wrap: anywhere; }
     .section { margin-top: 24px; padding-top: 22px; border-top: 1px solid #d9eaea; }
     .section h3 { margin: 0 0 14px; color: var(--teal); }
+    .itinerary-day { margin: 12px 0; padding: 17px; border-left: 4px solid var(--teal); border-radius: 10px; background: #f3fafa; }
+    .itinerary-day h4 { margin: 0 0 9px; color: var(--teal); }
+    .itinerary-day p { margin: 6px 0; line-height: 1.5; }
     .empty { padding: 52px 24px; text-align: center; }
     .button { display: inline-block; margin-top: 24px; padding: 12px 20px; border-radius: 10px; background: var(--teal); color: #fff; text-decoration: none; font-weight: 700; }
     @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } .title-row { align-items: flex-start; flex-direction: column; } }
   </style>
 </head>
 <body>
-  <header class="hero"><a class="back" href="upcoming.html">← Back to Upcoming Trips</a><h1>Trip Details</h1><p>Your TravelMate booking summary</p></header>
+  <header class="hero"><a class="back" id="backLink" href="upcoming.html">← Back to Trips</a><h1>Trip Details</h1><p>Your TravelMate booking summary</p></header>
   <main id="content"></main>
   <script>
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[char]));
     const bookingId = new URLSearchParams(location.search).get("id");
+    const returnPage = new URLSearchParams(location.search).get("from") === "completed" ? "completed.html" : "upcoming.html";
+    document.getElementById("backLink").href = returnPage;
+    document.getElementById("backLink").textContent = returnPage === "completed.html" ? "← Back to Completed Trips" : "← Back to Upcoming Trips";
     const user = JSON.parse(localStorage.getItem("travelmate_current_user") || "null");
     const booking = JSON.parse(localStorage.getItem("travelmate_bookings") || "[]").find(item => item.id === bookingId && user && item.userId === user.id);
     const content = document.getElementById("content");
+    function generatedItinerary(item) {
+      if (item.type !== "tour" || !item.duration) return "";
+      const destination = item.destination || item.title.replace(/ Tour$/i, "");
+      const transport = item.transport || "local transport";
+      const stay = item.accommodation ? item.accommodation.replace("star", " star") + " hotel" : "selected accommodation";
+      const meals = Array.isArray(item.meals) && item.meals.length ? item.meals.join(", ") : "local dining";
+      const preferences = item.specialRequirements ? `<p><strong>Preferences:</strong> ${escapeHtml(item.specialRequirements)}</p>` : "";
+      const dayCount = Math.min(Number(item.duration), 14);
+      const days = Array.from({ length: dayCount }, (_, index) => {
+        const day = index + 1;
+        const morning = day === 1 ? `Arrive in ${destination} by ${transport} and check in to your ${stay}.` : `Start with a destination-focused sightseeing activity in ${destination}.`;
+        const afternoon = day === dayCount ? "Keep time for checkout, souvenirs, and your return connection." : "Explore a local landmark, market, or guided experience at a comfortable pace.";
+        const evening = `Plan an evening around ${meals}, with time to rest or enjoy a local cultural experience.`;
+        return `<article class="itinerary-day"><h4>Day ${day}</h4><p><strong>Morning:</strong> ${escapeHtml(morning)}</p><p><strong>Afternoon:</strong> ${escapeHtml(afternoon)}</p><p><strong>Evening:</strong> ${escapeHtml(evening)}</p></article>`;
+      }).join("");
+      return `<section class="section"><h3>Personalized generated itinerary</h3><p>This plan is based on the saved destination, stay, transport, meals, and preferences for this booking.</p>${preferences}${days}</section>`;
+    }
     if (!booking) {
-      content.innerHTML = '<section class="card empty"><h2>Trip not found</h2><p>This booking is unavailable or belongs to another account.</p><a class="button" href="upcoming.html">Return to Upcoming Trips</a></section>';
+      content.innerHTML = `<section class="card empty"><h2>Trip not found</h2><p>This booking is unavailable or belongs to another account.</p><a class="button" href="${returnPage}">Return to Trips</a></section>`;
     } else {
       const insurance = JSON.parse(localStorage.getItem("travelmate_insurances") || "[]").find(item => item.bookingId === booking.id);
       const formatDate = value => new Date(value).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -47,7 +70,7 @@
         ["Total paid", booking.price], ["Travelers", booking.travelers || "Not specified"], ["Transport", booking.transport || "Not specified"],
         ["Accommodation", booking.accommodation ? booking.accommodation.replace("star", " star") + " hotel" : "Not specified"], ["Meals", Array.isArray(booking.meals) && booking.meals.length ? booking.meals.join(", ") : "Not included"], ["Insurance", insurance ? `${insurance.planName} (${insurance.price})` : "Not added"]
       ];
-      content.innerHTML = `<section class="card"><div class="title-row"><div><h2>${escapeHtml(booking.title)}</h2><p>Booked ${formatDate(booking.createdAt || booking.date)}</p></div><span class="status">${escapeHtml(booking.status)}</span></div><div class="grid">${fields.map(([label, value]) => `<div class="detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}</div>${booking.destination ? `<div class="section"><h3>Destination</h3><p>${escapeHtml(booking.destination)}</p></div>` : ""}${booking.duration ? `<div class="section"><h3>Trip plan</h3><p>${escapeHtml(booking.duration)} day${Number(booking.duration) === 1 ? "" : "s"} planned for ${escapeHtml(booking.travelers || 1)} traveler(s).</p></div>` : ""}<a class="button" href="upcoming.html">Back to Upcoming Trips</a></section>`;
+      content.innerHTML = `<section class="card"><div class="title-row"><div><h2>${escapeHtml(booking.title)}</h2><p>Booked ${formatDate(booking.createdAt || booking.date)}</p></div><span class="status">${escapeHtml(booking.status)}</span></div><div class="grid">${fields.map(([label, value]) => `<div class="detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}</div>${booking.destination ? `<div class="section"><h3>Destination</h3><p>${escapeHtml(booking.destination)}</p></div>` : ""}${booking.duration ? `<div class="section"><h3>Trip plan</h3><p>${escapeHtml(booking.duration)} day${Number(booking.duration) === 1 ? "" : "s"} planned for ${escapeHtml(booking.travelers || 1)} traveler(s).</p></div>` : ""}${generatedItinerary(booking)}<a class="button" href="${returnPage}">Back to Trips</a></section>`;
     }
   </script>
 </body>
