@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Details - TravelMate</title>
+  <style>
+    :root { --teal: #008080; --ink: #123c3c; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); background: linear-gradient(145deg, #e8f6f6, #f8fbfb); }
+    .hero { padding: 28px max(24px, calc((100vw - 1060px) / 2)); color: #fff; background: linear-gradient(125deg, #006565, #00a0a0); }
+    .back { display: inline-block; margin-bottom: 24px; color: #fff; text-decoration: none; font-weight: 700; }
+    .hero h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); }
+    .hero p { margin: 8px 0 0; opacity: .9; }
+    main { width: min(1060px, calc(100% - 40px)); margin: -14px auto 44px; }
+    .card { padding: 28px; border-radius: 18px; background: #fff; box-shadow: 0 16px 42px rgba(0, 79, 79, .13); }
+    .status { display: inline-block; padding: 7px 13px; border-radius: 999px; background: #d9f3ea; color: #177245; text-transform: capitalize; font-size: 13px; font-weight: 800; }
+    .title-row { display: flex; gap: 18px; align-items: center; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid #d9eaea; }
+    .title-row h2 { margin: 0; font-size: 27px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; margin: 24px 0; }
+    .detail { padding: 17px; border-radius: 12px; background: #f3fafa; }
+    .detail span { display: block; color: #5c7474; font-size: 13px; margin-bottom: 6px; }
+    .detail strong { font-size: 16px; overflow-wrap: anywhere; }
+    .section { margin-top: 24px; padding-top: 22px; border-top: 1px solid #d9eaea; }
+    .section h3 { margin: 0 0 14px; color: var(--teal); }
+    .empty { padding: 52px 24px; text-align: center; }
+    .button { display: inline-block; margin-top: 24px; padding: 12px 20px; border-radius: 10px; background: var(--teal); color: #fff; text-decoration: none; font-weight: 700; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } .title-row { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header class="hero"><a class="back" href="upcoming.html">← Back to Upcoming Trips</a><h1>Trip Details</h1><p>Your TravelMate booking summary</p></header>
+  <main id="content"></main>
+  <script>
+    const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[char]));
+    const bookingId = new URLSearchParams(location.search).get("id");
+    const user = JSON.parse(localStorage.getItem("travelmate_current_user") || "null");
+    const booking = JSON.parse(localStorage.getItem("travelmate_bookings") || "[]").find(item => item.id === bookingId && user && item.userId === user.id);
+    const content = document.getElementById("content");
+    if (!booking) {
+      content.innerHTML = '<section class="card empty"><h2>Trip not found</h2><p>This booking is unavailable or belongs to another account.</p><a class="button" href="upcoming.html">Return to Upcoming Trips</a></section>';
+    } else {
+      const insurance = JSON.parse(localStorage.getItem("travelmate_insurances") || "[]").find(item => item.bookingId === booking.id);
+      const formatDate = value => new Date(value).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      const fields = [
+        ["Booking ID", booking.id], ["Travel date", formatDate(booking.date)], ["Service", booking.type],
+        ["Total paid", booking.price], ["Travelers", booking.travelers || "Not specified"], ["Transport", booking.transport || "Not specified"],
+        ["Accommodation", booking.accommodation ? booking.accommodation.replace("star", " star") + " hotel" : "Not specified"], ["Meals", Array.isArray(booking.meals) && booking.meals.length ? booking.meals.join(", ") : "Not included"], ["Insurance", insurance ? `${insurance.planName} (${insurance.price})` : "Not added"]
+      ];
+      content.innerHTML = `<section class="card"><div class="title-row"><div><h2>${escapeHtml(booking.title)}</h2><p>Booked ${formatDate(booking.createdAt || booking.date)}</p></div><span class="status">${escapeHtml(booking.status)}</span></div><div class="grid">${fields.map(([label, value]) => `<div class="detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}</div>${booking.destination ? `<div class="section"><h3>Destination</h3><p>${escapeHtml(booking.destination)}</p></div>` : ""}${booking.duration ? `<div class="section"><h3>Trip plan</h3><p>${escapeHtml(booking.duration)} day${Number(booking.duration) === 1 ? "" : "s"} planned for ${escapeHtml(booking.travelers || 1)} traveler(s).</p></div>` : ""}<a class="button" href="upcoming.html">Back to Upcoming Trips</a></section>`;
+    }
+  </script>
+</body>
+</html>

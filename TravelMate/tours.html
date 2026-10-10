@@ -361,6 +361,33 @@
         margin: 20px 0;
         border: 1px solid #c3e6cb;
       }
+      .tour-confirmation-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(5, 42, 42, 0.58);
+        backdrop-filter: blur(5px);
+      }
+      .tour-confirmation-modal.show { display: flex; }
+      .tour-confirmation-card {
+        width: min(460px, 100%); padding: 32px; border-radius: 20px; background: #fff;
+        text-align: center; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        animation: tourConfirmationIn 0.3s ease both;
+      }
+      @keyframes tourConfirmationIn {
+        from { opacity: 0; transform: translateY(18px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .tour-confirmation-icon { font-size: 46px; margin-bottom: 10px; }
+      .tour-confirmation-card h2 { margin: 0 0 14px; color: #008080; font-size: 25px; }
+      .tour-confirmation-card p { color: #536565; line-height: 1.55; margin: 10px 0; }
+      .tour-confirmation-details { margin: 18px 0; padding: 16px; border-radius: 12px; background: #f2fafa; text-align: left; color: #174747; }
+      .tour-confirmation-details div + div { margin-top: 8px; }
+      .tour-confirmation-card .btn { width: 100%; justify-content: center; margin-top: 14px; }
     </style>
   </head>
   <body>
@@ -565,10 +592,21 @@
       </div>
     </div>
 
+    <div class="tour-confirmation-modal" id="tourConfirmationModal" role="dialog" aria-modal="true" aria-labelledby="tourConfirmationTitle">
+      <div class="tour-confirmation-card">
+        <div class="tour-confirmation-icon" aria-hidden="true">🎉</div>
+        <h2 id="tourConfirmationTitle">Trip Booked Successfully!</h2>
+        <div class="tour-confirmation-details" id="tourConfirmationDetails"></div>
+        <p>Your detailed itinerary has been sent to your email. Have a wonderful trip!</p>
+        <button type="button" class="btn btn-primary" onclick="finishTourBooking()">OK</button>
+      </div>
+    </div>
+
     <script>
       let currentStep = 1;
       const totalSteps = 6;
       const API_BASE_URL = "http://localhost:5000";
+      let tourBookingCreated = false;
 
       const formData = {
         destination: "",
@@ -780,6 +818,12 @@
           </div>
         `;
 
+        generateLocalPlan();
+        nextBtn.disabled = false;
+        nextBtn.textContent = "Book Trip 🎉";
+        showSuccess("Your personalized itinerary and budget are ready!");
+        return;
+
         try {
           const itineraryPrompt = createItineraryPrompt();
           const budgetPrompt = createBudgetPrompt();
@@ -821,6 +865,109 @@
           nextBtn.disabled = false;
           nextBtn.textContent = "Book Trip 🎉";
         }
+      }
+
+      function generateLocalPlan() {
+        const itineraryContainer = document.getElementById("itineraryDetails");
+        const budgetContainer = document.getElementById("budgetSummary");
+        const destination = formData.destination.trim();
+        const key = destination.toLowerCase();
+        const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+        }[character]));
+        const plans = {
+          goa: [
+            ["Arrive, check in and settle into your stay", "Explore Panaji's Latin Quarter and riverside cafés", "Sunset at Miramar Beach and a relaxed dinner"],
+            ["Visit Fort Aguada and Candolim", "Choose a water activity or beach time at Baga", "Explore a local market or live-music venue"],
+            ["Take a heritage walk through Old Goa", "Visit Basilica of Bom Jesus and nearby museums", "Enjoy a final coastal dinner"]
+          ],
+          kerala: [
+            ["Arrive and check in", "Explore Fort Kochi's waterfront and art district", "Watch the Chinese fishing nets at sunset"],
+            ["Travel to the backwaters", "Take a backwater cruise and try Kerala cuisine", "Relax by the water"],
+            ["Visit a spice market or tea estate", "Choose a guided nature walk", "Attend a cultural performance"]
+          ],
+          rajasthan: [
+            ["Arrive and check in", "Visit the old city and a local bazaar", "Watch sunset from a heritage viewpoint"],
+            ["Tour a major fort or palace", "Explore museums and traditional crafts", "Enjoy folk music and Rajasthani dinner"],
+            ["Take a guided heritage walk", "Visit artisan workshops", "Pack and enjoy a final rooftop meal"]
+          ],
+          "himachal pradesh": [
+            ["Arrive and acclimatize", "Walk through the town and local market", "Enjoy mountain views at sunset"],
+            ["Take a scenic drive to a nearby valley", "Choose a light trek or nature trail", "Warm local dinner and rest"],
+            ["Visit a temple or cultural site", "Try a local café and handicraft market", "Free evening for relaxation"]
+          ],
+          kashmir: [
+            ["Arrive and check in", "Take a gentle Srinagar orientation walk", "Enjoy a Dal Lake sunset"],
+            ["Visit Mughal gardens", "Take a shikara ride or explore local crafts", "Try Kashmiri cuisine"],
+            ["Plan a day trip to a nearby valley", "Enjoy a scenic nature walk", "Rest and prepare for departure"]
+          ],
+          andaman: [
+            ["Arrive at Port Blair and check in", "Visit the waterfront and local market", "Relax with a seaside dinner"],
+            ["Take a ferry to a nearby island", "Snorkel or enjoy beach time", "Watch sunset by the shore"],
+            ["Visit Cellular Jail or a local museum", "Choose a final beach activity", "Pack for departure"]
+          ],
+          ladakh: [
+            ["Arrive and acclimatize", "Keep activities light and explore Leh market", "Rest early for altitude adjustment"],
+            ["Visit Shanti Stupa and nearby monasteries", "Enjoy a scenic drive", "Try a local Ladakhi meal"],
+            ["Choose a guided valley or lake excursion", "Photograph mountain landscapes", "Free evening in Leh"]
+          ],
+          "tamil nadu": [
+            ["Arrive and check in", "Explore the local market and food scene", "Enjoy a relaxed evening"],
+            ["Visit a major temple or heritage site", "Explore museums or crafts", "Try a traditional dinner"],
+            ["Take a morning cultural walk", "Visit a nearby scenic spot", "Prepare for departure"]
+          ],
+          karnataka: [
+            ["Arrive and check in", "Explore the city centre or heritage district", "Dinner at a local restaurant"],
+            ["Visit a major palace, fort, or garden", "Explore local cafés and shopping", "Enjoy an evening cultural activity"],
+            ["Take a day trip to a nearby attraction", "Try a local experience", "Relax before departure"]
+          ],
+          uttarakhand: [
+            ["Arrive and acclimatize", "Explore the town and nearby viewpoints", "Enjoy a quiet mountain evening"],
+            ["Take a guided nature trail", "Visit a lake, waterfall, or temple", "Try local cuisine"],
+            ["Choose an adventure activity or scenic drive", "Browse local handicrafts", "Pack for departure"]
+          ]
+        };
+        const defaultPlan = [
+          ["Arrive and check in", `Take an orientation walk around ${destination}`, "Enjoy a relaxed welcome dinner"],
+          ["Visit the destination's top sights", "Choose a local food or cultural experience", "Enjoy an evening at leisure"],
+          ["Take a guided local activity", "Explore markets and collect souvenirs", "Prepare for departure"]
+        ];
+        const plan = plans[key] || defaultPlan;
+        const startDate = new Date(`${formData.startDate}T12:00:00`);
+        const accommodation = `${formData.accommodation.replace("star", " star")} hotel`;
+        const meals = formData.meals.length ? formData.meals.join(", ") : "meals at your preference";
+        const transport = formData.transport.charAt(0).toUpperCase() + formData.transport.slice(1);
+
+        itineraryContainer.innerHTML = Array.from({ length: formData.duration }, (_, index) => {
+          const day = index + 1;
+          const activities = plan[index % plan.length];
+          const date = new Date(startDate);
+          date.setDate(startDate.getDate() + index);
+          const morning = index === 0
+            ? `Travel to ${destination} by ${transport}, check in to your ${accommodation}, and take time to settle in.`
+            : activities[0];
+          const practicalNote = index === 0
+            ? `Keep travel documents and hotel confirmation handy for ${formData.travelers} traveler(s).`
+            : index === formData.duration - 1
+              ? `Allow enough time for checkout and your return ${transport} connection.`
+              : `This day includes ${meals}; keep local transport time flexible between activities.`;
+          return `<div class="day-item">
+            <h4 style="color: #008080; margin: 0 0 10px;">Day ${day} · ${date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</h4>
+            <p style="margin: 5px 0;"><strong>Morning:</strong> ${escapeHtml(morning)}</p>
+            <p style="margin: 5px 0;"><strong>Afternoon:</strong> ${escapeHtml(activities[1])}</p>
+            <p style="margin: 5px 0;"><strong>Evening:</strong> ${escapeHtml(activities[2])}</p>
+            <p style="margin: 10px 0 0; color: #537070;"><strong>Plan note:</strong> ${escapeHtml(practicalNote)}</p>
+          </div>`;
+        }).join("");
+
+        const budget = calculateBudget();
+        const currency = (amount) => `₹${amount.toLocaleString("en-IN")}`;
+        budgetContainer.innerHTML = `
+          <div class="budget-item"><div>Transport</div><div class="budget-amount">${currency(budget.transport)}</div></div>
+          <div class="budget-item"><div>Accommodation</div><div class="budget-amount">${currency(budget.accommodation)}</div></div>
+          <div class="budget-item"><div>Meals</div><div class="budget-amount">${currency(budget.meals)}</div></div>
+          <div class="budget-item"><div>Activities</div><div class="budget-amount">${currency(budget.activities)}</div></div>
+          <div class="budget-item total-budget"><div>Total Budget</div><div class="budget-amount">${currency(budget.total)}</div><div style="font-size: 14px; margin-top: 5px;">for ${formData.travelers} traveler(s)</div></div>`;
       }
 
       function createItineraryPrompt() {
@@ -1098,16 +1245,57 @@
       }
 
       function bookTrip() {
+        if (tourBookingCreated) return;
+
+        const user = JSON.parse(localStorage.getItem("travelmate_current_user") || "null");
+        if (!user) {
+          showError("Please log in before booking your trip.");
+          return;
+        }
+
         const budget = calculateBudget();
         const bookingId = `TRIP${Date.now()}`;
+        const booking = {
+          id: bookingId,
+          userId: user.id,
+          type: "tour",
+          title: `${formData.destination} Tour`,
+          price: `₹${budget.total.toLocaleString("en-IN")}`,
+          date: formData.startDate,
+          status: "confirmed",
+          createdAt: new Date().toISOString(),
+          destination: formData.destination,
+          duration: formData.duration,
+          travelers: formData.travelers,
+          transport: formData.transport,
+          accommodation: formData.accommodation,
+          meals: formData.meals
+        };
 
-        alert(
-          `🎉 Trip Booked Successfully!\n\nBooking ID: ${bookingId}\nDestination: ${
-            formData.destination
-          }\nDuration: ${
-            formData.duration
-          } days\nTotal Cost: ₹${budget.total.toLocaleString()}\n\nYour detailed itinerary has been sent to your email. Have a wonderful trip!`
-        );
+        const bookings = JSON.parse(localStorage.getItem("travelmate_bookings") || "[]");
+        bookings.push(booking);
+        localStorage.setItem("travelmate_bookings", JSON.stringify(bookings));
+        tourBookingCreated = true;
+
+        const details = document.getElementById("tourConfirmationDetails");
+        details.replaceChildren();
+        [
+          ["Booking ID", booking.id],
+          ["Destination", booking.destination],
+          ["Duration", `${booking.duration} days`],
+          ["Total Cost", booking.price]
+        ].forEach(([label, value]) => {
+          const row = document.createElement("div");
+          const labelElement = document.createElement("strong");
+          labelElement.textContent = `${label}: `;
+          row.append(labelElement, document.createTextNode(value));
+          details.appendChild(row);
+        });
+        document.getElementById("tourConfirmationModal").classList.add("show");
+      }
+
+      function finishTourBooking() {
+        window.location.href = "main.html";
       }
 
       async function testBackendConnection() {
@@ -1130,7 +1318,6 @@
         const today = new Date().toISOString().split("T")[0];
         document.getElementById("startDate").min = today;
 
-        testBackendConnection();
       });
     </script>
   </body>

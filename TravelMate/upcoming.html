@@ -331,27 +331,7 @@
     }
 
     function viewTripDetails(bookingId) {
-      const bookings = JSON.parse(localStorage.getItem('travelmate_bookings') || '[]');
-      const booking = bookings.find(b => b.id === bookingId);
-      
-      if (booking) {
-        const insurances = JSON.parse(localStorage.getItem('travelmate_insurances') || '[]');
-        const insurance = insurances.find(i => i.bookingId === bookingId);
-        
-        let insuranceInfo = insurance ? 
-          `Insurance: ${insurance.planName} (${insurance.price})` : 
-          'Insurance: Not added';
-        
-        tmNotify('Trip Details',
-          `${booking.title}\n` +
-          `Type: ${booking.type.charAt(0).toUpperCase() + booking.type.slice(1)}\n` +
-          `Price: ${booking.price}\n` +
-          `Booking ID: ${booking.id}\n` +
-          `Status: ${booking.status}\n` +
-          `Booked on: ${new Date(booking.date).toLocaleDateString()}\n` +
-          `${insuranceInfo}`,
-          'info', 8000);
-      }
+      window.location.href = `trip-details.html?id=${encodeURIComponent(bookingId)}`;
     }
 
     function cancelTrip(bookingId) {
